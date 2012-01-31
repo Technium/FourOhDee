@@ -11,3 +11,8 @@ Usage:
 
 
 Ideally someone would code up a Firefox/Chrome plugin that does the same job by intercepting requests from the browser directly.
+
+
+
+Thanks to Jonas Wagner and his HTTPRipper, on which this code is based.
+http://github.com/jwagner/httpripper
