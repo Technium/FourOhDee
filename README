@@ -1,0 +1,8 @@
+A simple web proxy that removes 4oD's video ads.
+
+
+Usage:
+ * Install Python - at a guess 2.6+, not 3.
+ * Run fourohdee.py
+ * Point your browser at localhost:8008
+ * Watch stuff in 4oD
