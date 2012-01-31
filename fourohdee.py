@@ -1,7 +1,6 @@
 import re
 import socket
 import logging
-import tempfile
 import threading
 import SocketServer
 from urlparse import urlparse
@@ -82,7 +81,7 @@ class HTTPProxyHandler(SocketServer.StreamRequestHandler):
         logger.debug("forwarding %r bytes", maxlen)
         left = maxlen or 1000000000
         while left:
-            data = f1.read(min(left, 1024))
+            data = f1.read(min(left, 2048))
             if not data:
                 break
             f2.write(data)
@@ -218,6 +217,7 @@ def intercept_forward(f1, f2, maxlen=0):
         data = buffer.readline()
         if not data:
             break
+        # Alter the bits we don't like without changing the length
         data = data.replace('adverts>', 'adderps>')
         data = data.replace('targetingUri>', 'blargtingUri>')
         data = data.replace('breaks>', 'bleaks>')
@@ -236,18 +236,13 @@ class FourOhDeeHTTPProxyHandler(HTTPProxyHandler):
         else:
             self.forward(f1, f2, contentlength)
 
-        if self.server.record:
-            content_type = self.responseheaders.get("Content-Type")
-            if content_type:
-                content_type = content_type[0]
-            #~ self.server.on_new_file(self.url, name, content_type)
-
 
 class FourOhDeeHTTPProxyServer(HTTPProxyServer, threading.Thread):
     """accepts client connections, deletes all files on shutdown"""
     def __init__(self):
         threading.Thread.__init__(self)
         HTTPProxyServer.__init__(self, ("127.0.0.1", 8008), FourOhDeeHTTPProxyHandler)
+        print "Running on localhost:8008"
         self.skip_headers.append("If-")
         self.record = False
         self.setDaemon(True)
@@ -257,10 +252,6 @@ class FourOhDeeHTTPProxyServer(HTTPProxyServer, threading.Thread):
 
     def shutdown(self):
         self.socket.close()
-
-    def on_new_file(self, url, filepath, content_type):
-        #~ gobject.idle_add(self.mainwin.new_file, url, filepath, content_type)
-        pass
 
 
 if __name__ == '__main__':
